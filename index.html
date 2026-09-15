@@ -1,2 +1,111 @@
 <!DOCTYPE html>
-<html lang="tr"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Delege Dagitim</title></head><body>placeholder</body></html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Delege Dağıtım ve Birleştirme</title>
+  <meta name="theme-color" content="#0f3d2e" />
+  <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/Cihan-Uzun/delege-dagitim@main/app.js"></script>
+  <style>
+    :root {
+      --bg: #f3f6f4; --card: #ffffff; --ink: #12261c; --muted: #5b6d63; --line: #d7e3db;
+      --brand: #0f3d2e; --brand-2: #1f7a55; --warn: #9a6b12; --danger: #9b2c2c; --ok: #1b6b45;
+      --radius: 16px; --shadow: 0 10px 30px rgba(15, 61, 46, .08);
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; background: var(--bg); color: var(--ink); font-family: "Segoe UI", system-ui, sans-serif; }
+    body { padding-bottom: 88px; }
+    header { position: sticky; top: 0; z-index: 20; background: linear-gradient(180deg, #0f3d2e, #164a38); color: #fff; padding: 14px 16px 16px; }
+    header h1 { margin: 0; font-size: 1.05rem; }
+    header p { margin: 4px 0 0; font-size: .78rem; opacity: .85; }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 14px; }
+    .grid { display: grid; gap: 12px; }
+    @media (min-width: 900px) { .split { grid-template-columns: 340px 1fr; align-items: start; } }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 14px; }
+    label { display: block; font-size: .75rem; color: var(--muted); margin: 8px 0 4px; font-weight: 600; }
+    input, select, textarea { width: 100%; border: 1px solid #c9d7ce; border-radius: 10px; padding: 10px 12px; font: inherit; background: #fff; color: var(--ink); }
+    textarea { min-height: 120px; font-family: ui-monospace, monospace; font-size: .8rem; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .btns { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    button, .btn { border: 0; border-radius: 999px; padding: 10px 14px; font-weight: 700; cursor: pointer; font-size: .85rem; }
+    .primary { background: var(--brand-2); color: #fff; }
+    .ghost { background: #e8f2ec; color: var(--brand); }
+    .danger { background: #fde8e8; color: var(--danger); }
+    .kpi { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 10px; }
+    @media (min-width: 700px) { .kpi { grid-template-columns: repeat(4, 1fr); } }
+    .kpi div { background: #f7fbf8; border: 1px solid var(--line); border-radius: 12px; padding: 10px; }
+    .kpi b { display: block; font-size: 1.15rem; }
+    .kpi span { font-size: .72rem; color: var(--muted); }
+    .group { border: 1px solid var(--line); border-radius: 14px; overflow: hidden; margin-bottom: 10px; }
+    .group.head { display: flex; justify-content: space-between; gap: 8px; padding: 10px 12px; color: #123; }
+    .group table { width: 100%; border-collapse: collapse; font-size: .8rem; }
+    .group th, .group td { text-align: left; padding: 7px 8px; border-top: 1px solid #edf3ef; vertical-align: top; }
+    .group th { font-size: .68rem; color: var(--muted); font-weight: 700; }
+    .badge { display: inline-block; border-radius: 999px; padding: 2px 8px; font-size: .68rem; font-weight: 700; background: #fff; }
+    .note { font-size: .78rem; color: var(--muted); line-height: 1.45; }
+    .reason { font-size: .72rem; color: #345; margin: 0 12px 8px; }
+    details { margin-top: 8px; }
+    summary { cursor: pointer; font-weight: 700; font-size: .85rem; }
+    .toast { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); background: #123; color: #fff; padding: 10px 14px; border-radius: 999px; font-size: .8rem; display: none; z-index: 50; }
+    .fabbar { position: fixed; left: 0; right: 0; bottom: 0; background: #fff; border-top: 1px solid var(--line); padding: 10px 12px calc(10px + env(safe-area-inset-bottom)); display: flex; gap: 8px; z-index: 30; }
+    .fabbar button { flex: 1; }
+    .warnbox { background: #fff7e6; border: 1px solid #f0d59a; color: #6a4b10; border-radius: 12px; padding: 10px; font-size: .8rem; }
+    .okbox { background: #e8f7ef; border: 1px solid #b7e0c7; color: #14532d; border-radius: 12px; padding: 10px; font-size: .8rem; }
+    .sgk { font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .right { text-align: right !important; }
+    .mini { font-size: .7rem; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Delege Dağıtım ve Birleştirme</h1>
+    <p>Üye sayısına göre oranla · 0,51↑ / 0,49↓ · küçük kurumları bağla</p>
+  </header>
+  <div class="wrap grid split">
+    <section class="card">
+      <strong>1) Şube ve hedef</strong>
+      <div class="row">
+        <div><label>Şube</label><input id="sube" value="" placeholder="ör. AYDIN" /></div>
+        <div><label>Hedef delege</label><input id="hedef" type="number" min="1" value="" placeholder="ör. 80" /></div>
+      </div>
+      <div class="row">
+        <div><label>Eşik (tek başına delege)</label><input id="esik" type="number" step="0.01" value="0.79" /></div>
+        <div><label>Yuvarlama</label>
+          <select id="yuvarlama">
+            <option value="half-up-51" selected>…,51 yukarı / …,49 aşağı</option>
+            <option value="half-up">…,50 ve üzeri yukarı</option>
+          </select>
+        </div>
+      </div>
+      <label>Liste (Excel yükle veya yapıştır)</label>
+      <input id="file" type="file" accept=".xlsx,.xls,.csv,.txt" />
+      <textarea id="paste" placeholder="SGK No;Unvan;Kategori;Il;Ilce;Uye"></textarea>
+      <div class="btns">
+        <button class="primary" onclick="parseInput()">Listeyi oku</button>
+        <button class="ghost" onclick="loadSample()">Uşak örneğini yükle</button>
+        <button class="danger" onclick="clearAll()">Temizle</button>
+      </div>
+    </section>
+    <section>
+      <div class="kpi" id="kpi"></div>
+      <div id="status" style="margin:10px 0"></div>
+      <div class="card" style="margin-bottom:10px">
+        <strong>2) Sonuç</strong>
+        <div class="btns">
+          <button class="primary" onclick="run()">Dağıt ve birleştir</button>
+          <button class="ghost" onclick="exportXlsx()">Excel indir</button>
+          <button class="ghost" onclick="exportCsv()">CSV indir</button>
+        </div>
+      </div>
+      <div id="results"></div>
+    </section>
+  </div>
+  <div class="fabbar">
+    <button class="ghost" onclick="parseInput()">Oku</button>
+    <button class="primary" onclick="run()">Hesapla</button>
+    <button class="ghost" onclick="exportXlsx()">Excel</button>
+  </div>
+  <div class="toast" id="toast"></div>
+</body>
+</html>
